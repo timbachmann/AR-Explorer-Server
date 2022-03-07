@@ -1,0 +1,15 @@
+{
+  "database": {
+    "host": "127.0.0.1",
+    "port": 27017,
+    "database": "capvis"
+  },
+  "server": {
+    "documentRoot": "data",
+    "httpPort": 4544,
+    "httpsPort": 4545,
+    "enableSsl": true,
+    "keystorePath": "keystore.jks",
+    "keystorePassword": "password"
+  }
+}
