@@ -14,6 +14,27 @@ repositories {
     mavenCentral()
 }
 
+mainClassName = 'de.timbachmann.capvisar.rest.MainKt'
+
+jar {
+    manifest {
+        attributes 'Version': archiveVersion.get()
+        attributes 'Main-Class': mainClassName // Same as for the application plugin.
+        attributes 'Manifest-Version': '1.0'
+        attributes 'Multi-Release': true
+    }
+
+    // Gradle 7.0 requires a duplicate handling strategy or fails if duplicates occur.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    exclude 'META-INF', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+}
+
 dependencies {
     implementation group: 'io.javalin', name: 'javalin', version: '4.3.0'
     implementation group: 'io.javalin', name: 'javalin-openapi', version: '4.3.0'
@@ -26,6 +47,8 @@ dependencies {
 
     implementation group: 'org.litote.kmongo', name: 'kmongo-serialization', version: "4.5.0"
     implementation group: 'org.litote.kmongo', name: 'kmongo-id-serialization', version: "4.5.0"
+
+    implementation("net.coobird:thumbnailator:0.4.17")
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'

@@ -13,25 +13,26 @@ import de.timbachmann.capvisar.rest.handlers.ImageHandler
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}
+val logger = KotlinLogging.logger {}
 
-fun main(args: Array<String>) {
+fun main() {
 
     val app = Javalin.create { config ->
             config.registerPlugin(getConfiguredOpenApiPlugin())
             config.defaultContentType = "application/json"
+            config.maxRequestSize = 10_000_000L;
         }.apply {
             error(404) { ctx -> ctx.json("Not found") }
         }.start(7000)
+    logger.info {"Server Started!"}
 
     app.routes {
         path("/images") {
             get(ImageHandler::getAll)
             post(ImageHandler::create)
-            /*path("{imageId}") {
-                get(ImageHandler::getOne)
-                delete(ImageHandler::delete)
-            }*/
+            path("{imageId}") {
+                get(ImageHandler::getImage)
+            }
         }
     }
 }
