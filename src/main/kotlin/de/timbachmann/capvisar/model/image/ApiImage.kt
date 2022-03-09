@@ -1,9 +1,8 @@
 package de.timbachmann.capvisar.model.image
 
 @kotlinx.serialization.Serializable
-data class Image(
-    val id: Int,
-    var name: String,
+data class ApiImage(
+    var id: String,
     var data: ByteArray,
     var lat: Double,
     var lng: Double,
@@ -15,10 +14,9 @@ data class Image(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Image
+        other as ApiImage
 
         if (id != other.id) return false
-        if (name != other.name) return false
         if (!data.contentEquals(other.data)) return false
         if (lat != other.lat) return false
         if (lng != other.lng) return false
@@ -30,8 +28,7 @@ data class Image(
     }
 
     override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + name.hashCode()
+        var result = id.hashCode()
         result = 31 * result + data.contentHashCode()
         result = 31 * result + lat.hashCode()
         result = 31 * result + lng.hashCode()
