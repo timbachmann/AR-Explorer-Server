@@ -20,7 +20,7 @@ fun main() {
     val app = Javalin.create { config ->
             config.registerPlugin(getConfiguredOpenApiPlugin())
             config.defaultContentType = "application/json"
-            config.maxRequestSize = 10_000_000L;
+            config.maxRequestSize = 10_000_000L
         }.apply {
             error(404) { ctx -> ctx.json("Not found") }
         }.start(7000)

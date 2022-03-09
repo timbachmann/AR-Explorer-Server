@@ -48,7 +48,7 @@ object ImageHandler {
         summary = "Get image by id",
         operationId = "getImageById",
         tags = ["Image"],
-        pathParams = [OpenApiParam("id", String::class, description = "id to search for", required = true)],
+        pathParams = [OpenApiParam("imageId", String::class, description = "id to search for", required = true)],
         responses = [OpenApiResponse("200", [OpenApiContent(ApiImage::class)])]
     )
     fun getImage(ctx: Context) {
