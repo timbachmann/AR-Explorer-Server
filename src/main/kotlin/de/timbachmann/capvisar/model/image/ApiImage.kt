@@ -4,6 +4,7 @@ package de.timbachmann.capvisar.model.image
 data class ApiImage(
     var id: String,
     var data: ByteArray,
+    var thumbnail: ByteArray,
     var lat: Double,
     var lng: Double,
     var date: String,

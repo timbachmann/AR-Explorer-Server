@@ -54,4 +54,17 @@ object ImageHandler {
     fun getImage(ctx: Context) {
         imageDao.getApiImageById(ctx.pathParam("id"))?.let { ctx.json(it) }
     }
+
+    @OpenApi(
+        path = "/images/{imageId}",
+        method = HttpMethod.DELETE,
+        summary = "Delete image by id",
+        operationId = "deleteImageById",
+        tags = ["Image"],
+        pathParams = [OpenApiParam("imageId", String::class, description = "id to search for", required = true)],
+        responses = [OpenApiResponse("200", [OpenApiContent(ApiImage::class)])]
+    )
+    fun deleteImage(ctx: Context) {
+        imageDao.deleteApiImageById(ctx.pathParam("id")).let { ctx.json(it) }
+    }
 }
