@@ -34,6 +34,7 @@ fun main() {
     app.routes {
         path("/images") {
             get(ImageHandler::getAll)
+            get(ImageHandler::getAllWithFilter)
             post(ImageHandler::create)
             path("{imageId}") {
                 get(ImageHandler::getImage)

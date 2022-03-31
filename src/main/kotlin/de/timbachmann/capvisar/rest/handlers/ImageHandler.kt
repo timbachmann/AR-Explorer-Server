@@ -4,6 +4,7 @@ import de.timbachmann.capvisar.database.ImageDao
 import de.timbachmann.capvisar.model.api.response.ErrorResponse
 import de.timbachmann.capvisar.model.api.request.NewImageRequest
 import de.timbachmann.capvisar.model.api.response.ImageListResponse
+import de.timbachmann.capvisar.model.filter.Filter
 import de.timbachmann.capvisar.model.image.ApiImage
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.*
@@ -43,6 +44,20 @@ object ImageHandler {
     }
 
     @OpenApi(
+        path = "/images",
+        method = HttpMethod.GET,
+        summary = "Get all images with filter",
+        operationId = "getAllImagesWithFilter",
+        tags = ["Image"],
+        requestBody = OpenApiRequestBody([OpenApiContent(Filter::class)]),
+        responses = [OpenApiResponse("200", [OpenApiContent(ImageListResponse::class)])]
+    )
+    fun getAllWithFilter(ctx: Context) {
+        val filter = ctx.bodyAsClass<Filter>()
+        ctx.json(imageDao.getListWithFilter(filter))
+    }
+
+    @OpenApi(
         path = "/images/{imageId}",
         method = HttpMethod.GET,
         summary = "Get image by id",
@@ -52,7 +67,7 @@ object ImageHandler {
         responses = [OpenApiResponse("200", [OpenApiContent(ApiImage::class)])]
     )
     fun getImage(ctx: Context) {
-        imageDao.getApiImageById(ctx.pathParam("id"))?.let { ctx.json(it) }
+        imageDao.getApiImageById(ctx.pathParam("imageId"))?.let { ctx.json(it) }
     }
 
     @OpenApi(
@@ -65,6 +80,6 @@ object ImageHandler {
         responses = [OpenApiResponse("200", [OpenApiContent(ApiImage::class)])]
     )
     fun deleteImage(ctx: Context) {
-        imageDao.deleteApiImageById(ctx.pathParam("id")).let { ctx.json(it) }
+        imageDao.deleteApiImageById(ctx.pathParam("imageId")).let { ctx.json(it) }
     }
 }
