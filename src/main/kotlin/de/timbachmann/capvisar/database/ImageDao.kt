@@ -1,7 +1,6 @@
 package de.timbachmann.capvisar.database
 
 import de.timbachmann.capvisar.model.api.response.ImageListResponse
-import de.timbachmann.capvisar.model.filter.Filter
 import de.timbachmann.capvisar.model.image.ApiImage
 import de.timbachmann.capvisar.model.image.MetaData
 import de.timbachmann.capvisar.rest.logger
@@ -94,26 +93,27 @@ class ImageDao {
      * Retrieves all images matching given filter stored in image directory and returns them
      * @return ImageListResponse
      */
-    fun getListWithFilter(filter: Filter): ImageListResponse {
+    fun getListWithFilter(startDate: String?, endDate: String?, lat: Double?, lng: Double?, radius: Int?): ImageListResponse {
         logger.info {"Retrieving images matching filter..."}
         val apiImageLists: MutableList<ApiImage> = mutableListOf()
         File(path).walkTopDown().forEach {
             if (it.toString().endsWith("thumb.jpg")) {
-                var isMatch = false
+                var isMatchDate = false
+                var isMatchRadius = false
                 val metaData = json.decodeFromString<MetaData>(File(it.toString().replace("-thumb.jpg", ".json")).readText())
-                if (filter.startDate != null && filter.endDate != null) {
+                if (startDate != null && endDate != null) {
                     val pattern: DateTimeFormatter = DateTimeFormatter.ofPattern( "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
-                    val start: LocalDate = LocalDate.parse(filter.startDate, pattern)
-                    val end: LocalDate = LocalDate.parse(filter.endDate, pattern)
+                    val start: LocalDate = LocalDate.parse(startDate, pattern)
+                    val end: LocalDate = LocalDate.parse(endDate, pattern)
                     val imageDate: LocalDate = LocalDate.parse(metaData.date, pattern)
                     if (imageDate.isAfter(start) && imageDate.isBefore(end)) {
-                        isMatch = true
+                        isMatchDate = true
                     }
                 }
-                if (filter.lat != null && filter.lng != null && filter.radius != null) {
-                    isMatch = haversineDistance(filter.lat!!, filter.lng!!, metaData.lat, metaData.lng) < filter.radius!!
+                if (lat != null && lng != null && radius != null) {
+                    isMatchRadius = haversineDistance(lat, lng, metaData.lat, metaData.lng) < radius
                 }
-                if (isMatch) {
+                if (isMatchDate && isMatchRadius) {
                     val imageBytes = Files.readAllBytes(Paths.get(it.toURI()))
                     apiImageLists += ApiImage(id = metaData.id, data = byteArrayOf(), thumbnail = imageBytes, lat = metaData.lat, lng = metaData.lng,
                         date = metaData.date, source = metaData.source, bearing = metaData.bearing)

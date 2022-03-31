@@ -4,7 +4,6 @@ import de.timbachmann.capvisar.database.ImageDao
 import de.timbachmann.capvisar.model.api.response.ErrorResponse
 import de.timbachmann.capvisar.model.api.request.NewImageRequest
 import de.timbachmann.capvisar.model.api.response.ImageListResponse
-import de.timbachmann.capvisar.model.filter.Filter
 import de.timbachmann.capvisar.model.image.ApiImage
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.*
@@ -49,12 +48,22 @@ object ImageHandler {
         summary = "Get all images with filter",
         operationId = "getAllImagesWithFilter",
         tags = ["Image"],
-        requestBody = OpenApiRequestBody([OpenApiContent(Filter::class)]),
+        queryParams = [
+            OpenApiParam("startDate", String::class, description = "start date for temporal filter", required = true),
+            OpenApiParam("endDate", String::class, description = "end date for temporal filter", required = true),
+            OpenApiParam("lat", String::class, description = "latitude for spatial filter", required = true),
+            OpenApiParam("lng", String::class, description = "longitude for spatial filter", required = true),
+            OpenApiParam("radius", String::class, description = "radius for spatial filter", required = true)],
         responses = [OpenApiResponse("200", [OpenApiContent(ImageListResponse::class)])]
     )
     fun getAllWithFilter(ctx: Context) {
-        val filter = ctx.bodyAsClass<Filter>()
-        ctx.json(imageDao.getListWithFilter(filter))
+        imageDao.getListWithFilter(
+            ctx.queryParam("startDate").orEmpty(),
+            ctx.queryParam("endDate").orEmpty(),
+            ctx.queryParamAsClass<Double>("lat").getOrDefault(0.0),
+            ctx.queryParamAsClass<Double>("lng").getOrDefault(0.0),
+            ctx.queryParamAsClass<Int>("radius").getOrDefault(0))
+            .let { ctx.json(it) }
     }
 
     @OpenApi(
