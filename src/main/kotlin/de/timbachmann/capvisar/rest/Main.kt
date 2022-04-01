@@ -3,6 +3,7 @@ package de.timbachmann.capvisar.rest
 import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.openapiDsl
 import de.timbachmann.capvisar.database.Config
+import de.timbachmann.capvisar.database.WebServerConfig
 import de.timbachmann.capvisar.model.api.response.ErrorResponse
 import de.timbachmann.capvisar.rest.handlers.ImageHandler
 import io.javalin.Javalin
@@ -12,7 +13,11 @@ import io.javalin.plugin.openapi.OpenApiPlugin
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import mu.KotlinLogging
-
+import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory
+import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory
+import org.eclipse.jetty.server.*
+import org.eclipse.jetty.util.ssl.SslContextFactory
+import org.eclipse.jetty.util.thread.QueuedThreadPool
 
 
 val logger = KotlinLogging.logger {}
@@ -20,15 +25,17 @@ val logger = KotlinLogging.logger {}
 fun main() {
 
     val serverConfig = Config.readConfig("config.json")
-    //val docRoot = File(serverConfig.server.documentRoot).toPath()
 
     val app = Javalin.create { config ->
+        config.server { setupHttpServer(serverConfig.server) }
         config.registerPlugin(getConfiguredOpenApiPlugin())
         config.defaultContentType = "application/json"
         config.maxRequestSize = 10_000_000L
+        config.enforceSsl = serverConfig.server.enableSsl
     }.apply {
         error(404) { ctx -> ctx.json("Not found") }
-    }.start(serverConfig.server.httpPort)
+    }.start()
+
     logger.info { "Server Started!" }
 
     app.routes {
@@ -62,3 +69,67 @@ fun getConfiguredOpenApiPlugin() = OpenApiPlugin(
         }
     }
 )
+
+private fun setupHttpServer(config: WebServerConfig): Server {
+
+    val httpConfig = HttpConfiguration().apply {
+        sendServerVersion = false
+        sendXPoweredBy = false
+        if (config.enableSsl) {
+            secureScheme = "https"
+            securePort = config.httpsPort
+        }
+    }
+
+    if (config.enableSsl) {
+        val httpsConfig = HttpConfiguration(httpConfig).apply {
+            addCustomizer(SecureRequestCustomizer())
+        }
+
+        val alpn = ALPNServerConnectionFactory().apply {
+            defaultProtocol = "http/1.1"
+        }
+
+        val sslContextFactory = SslContextFactory.Server().apply {
+            keyStorePath = config.keystorePath
+            setKeyStorePassword(config.keystorePassword)
+            //cipherComparator = HTTP2Cipher.COMPARATOR
+            provider = "Conscrypt"
+        }
+
+        val ssl = SslConnectionFactory(sslContextFactory, alpn.protocol)
+
+        val http2 = HTTP2ServerConnectionFactory(httpsConfig)
+
+        val fallback = HttpConnectionFactory(httpsConfig)
+
+        return Server().apply {
+            //HTTP Connector
+            addConnector(
+                ServerConnector(
+                    server,
+                    HttpConnectionFactory(httpConfig),
+                    HTTP2ServerConnectionFactory(httpConfig)
+                ).apply {
+                    port = config.httpPort
+                })
+            // HTTPS Connector
+            addConnector(ServerConnector(server, ssl, alpn, http2, fallback).apply {
+                port = config.httpsPort
+            })
+        }
+    } else {
+        return Server().apply {
+            //HTTP Connector
+            addConnector(
+                ServerConnector(
+                    server,
+                    HttpConnectionFactory(httpConfig),
+                    HTTP2ServerConnectionFactory(httpConfig)
+                ).apply {
+                    port = config.httpPort
+                })
+
+        }
+    }
+}
