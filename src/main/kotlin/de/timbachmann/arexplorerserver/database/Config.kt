@@ -1,4 +1,4 @@
-package de.timbachmann.capvisar.database
+package de.timbachmann.arexplorerserver.database
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

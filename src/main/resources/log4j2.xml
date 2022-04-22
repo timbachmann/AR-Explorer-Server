@@ -19,7 +19,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name="de.timbachmann.capvisar" level="TRACE" additivity="false">
+        <Logger name="de.timbachmann.arexplorerserver" level="TRACE" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
         </Logger>

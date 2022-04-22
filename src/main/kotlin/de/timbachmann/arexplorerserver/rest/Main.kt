@@ -1,11 +1,11 @@
-package de.timbachmann.capvisar.rest
+package de.timbachmann.arexplorerserver.rest
 
 import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.openapiDsl
-import de.timbachmann.capvisar.database.Config
-import de.timbachmann.capvisar.database.WebServerConfig
-import de.timbachmann.capvisar.model.api.response.ErrorResponse
-import de.timbachmann.capvisar.rest.handlers.ImageHandler
+import de.timbachmann.arexplorerserver.database.Config
+import de.timbachmann.arexplorerserver.database.WebServerConfig
+import de.timbachmann.arexplorerserver.model.api.response.ErrorResponse
+import de.timbachmann.arexplorerserver.rest.handlers.ImageHandler
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.plugin.openapi.OpenApiOptions
@@ -13,11 +13,7 @@ import io.javalin.plugin.openapi.OpenApiPlugin
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import mu.KotlinLogging
-import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory
-import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory
 import org.eclipse.jetty.server.*
-import org.eclipse.jetty.util.ssl.SslContextFactory
-import org.eclipse.jetty.util.thread.QueuedThreadPool
 
 
 val logger = KotlinLogging.logger {}
@@ -27,14 +23,12 @@ fun main() {
     val serverConfig = Config.readConfig("config.json")
 
     val app = Javalin.create { config ->
-        config.server { setupHttpServer(serverConfig.server) }
         config.registerPlugin(getConfiguredOpenApiPlugin())
         config.defaultContentType = "application/json"
         config.maxRequestSize = 10_000_000L
-        config.enforceSsl = serverConfig.server.enableSsl
     }.apply {
         error(404) { ctx -> ctx.json("Not found") }
-    }.start()
+    }.start(serverConfig.server.httpPort)
 
     logger.info { "Server Started!" }
 
@@ -42,9 +36,11 @@ fun main() {
         path("/images") {
             get(ImageHandler::getAllWithFilter)
             post(ImageHandler::create)
-            path("{imageId}") {
-                get(ImageHandler::getImage)
-                delete(ImageHandler::deleteImage)
+            path("{userID}") {
+                path("{imageId}") {
+                    get(ImageHandler::getImage)
+                    delete(ImageHandler::deleteImage)
+                }
             }
         }
     }
@@ -70,7 +66,7 @@ fun getConfiguredOpenApiPlugin() = OpenApiPlugin(
     }
 )
 
-private fun setupHttpServer(config: WebServerConfig): Server {
+/*private fun setupHttpServer(config: WebServerConfig): Server {
 
     val httpConfig = HttpConfiguration().apply {
         sendServerVersion = false
@@ -132,4 +128,4 @@ private fun setupHttpServer(config: WebServerConfig): Server {
 
         }
     }
-}
+}*/

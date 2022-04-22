@@ -1,6 +1,6 @@
 {
   "server": {
-    "documentRoot": "CapVis/images",
+    "documentRoot": "ARExplorer/images",
     "httpPort": 7000,
     "httpsPort": 8443,
     "enableSsl": true,

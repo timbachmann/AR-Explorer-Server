@@ -1,4 +1,4 @@
-package de.timbachmann.capvisar.model.image
+package de.timbachmann.arexplorerserver.model.image
 
 @kotlinx.serialization.Serializable
 data class MetaData(
@@ -7,4 +7,6 @@ data class MetaData(
     var lng: Double,
     var date: String,
     var source: String,
-    var bearing: Int)
+    var bearing: Int,
+    var yaw: Float,
+    var pitch: Float)

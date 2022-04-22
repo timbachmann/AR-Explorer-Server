@@ -1,6 +1,6 @@
-package de.timbachmann.capvisar.model.api.response
+package de.timbachmann.arexplorerserver.model.api.response
 
-import de.timbachmann.capvisar.model.image.ApiImage
+import de.timbachmann.arexplorerserver.model.image.ApiImage
 
 data class ImageListResponse (val apiImages: Array<ApiImage>) {
 
