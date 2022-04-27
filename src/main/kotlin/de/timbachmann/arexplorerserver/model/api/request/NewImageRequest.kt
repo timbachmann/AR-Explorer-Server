@@ -10,12 +10,15 @@ data class NewImageRequest(
     var source: String,
     var bearing: Int,
     var yaw: Float,
-    var pitch: Float) {
+    var pitch: Float,
+    var publicImage: Int) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
+
         other as NewImageRequest
+
         if (userID != other.userID) return false
         if (id != other.id) return false
         if (!data.contentEquals(other.data)) return false
@@ -26,6 +29,7 @@ data class NewImageRequest(
         if (bearing != other.bearing) return false
         if (yaw != other.yaw) return false
         if (pitch != other.pitch) return false
+        if (publicImage != other.publicImage) return false
 
         return true
     }
@@ -41,6 +45,7 @@ data class NewImageRequest(
         result = 31 * result + bearing
         result = 31 * result + yaw.hashCode()
         result = 31 * result + pitch.hashCode()
+        result = 31 * result + publicImage
         return result
     }
 }

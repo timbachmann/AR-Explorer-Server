@@ -21,7 +21,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 class ImageDao {
-    private val path = "/home/tim/CapVis/images"
+    private val path = "/home/tim/ARExplorer/images"
     private val json = Json { ignoreUnknownKeys = true }
 
     /**
@@ -36,9 +36,9 @@ class ImageDao {
     /**
      * Saves an ApiImage to JSON file
      */
-    fun save(userID: String, id: String, data: ByteArray, lat: Double, lng: Double, date: String, source: String, bearing: Int, yaw: Float, pitch: Float) {
+    fun save(userID: String, id: String, data: ByteArray, lat: Double, lng: Double, date: String, source: String, bearing: Int, yaw: Float, pitch: Float, isPublic: Int) {
         logger.info {"Saving image to file..."}
-        val metaData = MetaData(id = id, lat = lat, lng = lng, date = date, source = source, bearing = bearing, yaw = yaw, pitch = pitch)
+        val metaData = MetaData(id = id, lat = lat, lng = lng, date = date, source = source, bearing = bearing, yaw = yaw, pitch = pitch, publicImage = isPublic)
         val userPath = "$path/$userID"
         val imagePath = "$path/$userID/$id"
         logger.info { "Meta created!" }
@@ -114,7 +114,7 @@ class ImageDao {
                 if (isMatchDate && isMatchRadius) {
                     val imageBytes = Files.readAllBytes(Paths.get(it.toURI()))
                     apiImageList += ApiImage(id = metaData.id, data = byteArrayOf(), thumbnail = imageBytes, lat = metaData.lat, lng = metaData.lng,
-                        date = metaData.date, source = metaData.source, bearing = metaData.bearing, yaw = metaData.yaw, pitch = metaData.pitch)
+                        date = metaData.date, source = metaData.source, bearing = metaData.bearing, yaw = metaData.yaw, pitch = metaData.pitch, publicImage = metaData.publicImage)
                 }
             }
         }
@@ -132,15 +132,13 @@ class ImageDao {
             val metaData = json.decodeFromString<MetaData>(File(fullImage.toString().replace(".jpg", ".json")).readText())
             val imageBytes = Files.readAllBytes(Paths.get(fullImage.toURI()))
             logger.info {"Image response sent!"}
-            return ApiImage(id = metaData.id, data = imageBytes, thumbnail = byteArrayOf(), lat = metaData.lat, lng = metaData.lng,
-                date = metaData.date, source = metaData.source, bearing = metaData.bearing, yaw = metaData.yaw, pitch = metaData.pitch)
+            return ApiImage(id = metaData.id, data = imageBytes, thumbnail = byteArrayOf(), lat = metaData.lat, lng = metaData.lng, date = metaData.date, source = metaData.source, bearing = metaData.bearing, yaw = metaData.yaw, pitch = metaData.pitch, publicImage = metaData.publicImage)
         } else if (Files.exists(Paths.get("$path/public"))) {
             val fullImage = File("$path/public/$id/$id.jpg")
             val metaData = json.decodeFromString<MetaData>(File(fullImage.toString().replace(".jpg", ".json")).readText())
             val imageBytes = Files.readAllBytes(Paths.get(fullImage.toURI()))
             logger.info {"Image response sent!"}
-            return ApiImage(id = metaData.id, data = imageBytes, thumbnail = byteArrayOf(), lat = metaData.lat, lng = metaData.lng,
-                date = metaData.date, source = metaData.source, bearing = metaData.bearing, yaw = metaData.yaw, pitch = metaData.pitch)
+            return ApiImage(id = metaData.id, data = imageBytes, thumbnail = byteArrayOf(), lat = metaData.lat, lng = metaData.lng, date = metaData.date, source = metaData.source, bearing = metaData.bearing, yaw = metaData.yaw, pitch = metaData.pitch, publicImage = metaData.publicImage)
         }
         logger.info {"Image not found!"}
         return null

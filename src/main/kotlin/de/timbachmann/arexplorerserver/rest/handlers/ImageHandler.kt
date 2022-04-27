@@ -26,7 +26,7 @@ object ImageHandler {
     )
     fun create(ctx: Context) {
         val image = ctx.bodyAsClass<NewImageRequest>()
-        imageDao.save(userID = image.userID, id = image.id, data = image.data, lat = image.lat, lng = image.lng, bearing = image.bearing, date = image.date, source = image.source, yaw = image.yaw, pitch = image.pitch)
+        imageDao.save(userID = image.userID, id = image.id, data = image.data, lat = image.lat, lng = image.lng, bearing = image.bearing, date = image.date, source = image.source, yaw = image.yaw, pitch = image.pitch, isPublic = image.publicImage)
         ctx.status(201)
     }
 

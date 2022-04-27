@@ -9,4 +9,5 @@ data class MetaData(
     var source: String,
     var bearing: Int,
     var yaw: Float,
-    var pitch: Float)
+    var pitch: Float,
+    var publicImage: Int)

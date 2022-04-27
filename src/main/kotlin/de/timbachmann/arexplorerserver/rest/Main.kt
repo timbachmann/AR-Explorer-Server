@@ -3,7 +3,6 @@ package de.timbachmann.arexplorerserver.rest
 import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.openapiDsl
 import de.timbachmann.arexplorerserver.database.Config
-import de.timbachmann.arexplorerserver.database.WebServerConfig
 import de.timbachmann.arexplorerserver.model.api.response.ErrorResponse
 import de.timbachmann.arexplorerserver.rest.handlers.ImageHandler
 import io.javalin.Javalin
@@ -13,7 +12,6 @@ import io.javalin.plugin.openapi.OpenApiPlugin
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import mu.KotlinLogging
-import org.eclipse.jetty.server.*
 
 
 val logger = KotlinLogging.logger {}
@@ -50,8 +48,8 @@ fun getConfiguredOpenApiPlugin() = OpenApiPlugin(
     OpenApiOptions {
         openapiDsl {
             info {
-                title = "CapVisAPI"
-                description = "Used to get and store Images of CapVisAR"
+                title = "ARExplorerAPI"
+                description = "Used to get and store Images of AR-Explorer"
                 version = "1.0.0"
             }
         }
