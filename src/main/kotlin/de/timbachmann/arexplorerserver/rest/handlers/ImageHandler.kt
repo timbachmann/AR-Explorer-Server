@@ -88,4 +88,20 @@ object ImageHandler {
         imageDao.deleteApiImageById(ctx.pathParam("imageId"), ctx.pathParam("userID"))
         ctx.status(200)
     }
+
+    @OpenApi(
+        path = "/images/{userID}/{imageId}",
+        method = HttpMethod.PUT,
+        summary = "Update image by id",
+        operationId = "updateImageById",
+        tags = ["Image"],
+        pathParams = [
+            OpenApiParam("userID", String::class, description = "user ID", required = true),
+            OpenApiParam("imageId", String::class, description = "id to search for", required = true)],
+        responses = [OpenApiResponse("200")]
+    )
+    fun updateImage(ctx: Context) {
+        imageDao.updateApiImageById(ctx.pathParam("imageId"), ctx.pathParam("userID"))
+        ctx.status(200)
+    }
 }

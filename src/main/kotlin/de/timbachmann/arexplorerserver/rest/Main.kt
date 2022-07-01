@@ -38,6 +38,7 @@ fun main() {
                 path("{imageId}") {
                     get(ImageHandler::getImage)
                     delete(ImageHandler::deleteImage)
+                    put(ImageHandler::updateImage)
                 }
             }
         }

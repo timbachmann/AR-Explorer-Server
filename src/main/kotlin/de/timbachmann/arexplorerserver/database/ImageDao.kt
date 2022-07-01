@@ -8,6 +8,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.coobird.thumbnailator.Thumbnails
+import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -158,6 +159,33 @@ class ImageDao {
             logger.info { "Image deleted!" }
         } else {
             logger.info { "Image does not exist or is public!" }
+        }
+    }
+
+    /**
+     * Updates a single image by id
+     * @return ApiImage
+     */
+    fun updateApiImageById(id: String, userID: String) {
+        logger.info {"Moving image..."}
+        if (Files.exists(Paths.get("$path/$userID/$id"))) {
+
+            val oldMetaFile = File("$path/$userID/$id/$id.json")
+            val metaData = json.decodeFromString<MetaData>(oldMetaFile.readText())
+            oldMetaFile.delete()
+            metaData.publicImage = 1
+            val metaString = Json.encodeToString(metaData)
+            val metaFile = File("$path/$userID/$id/$id.json")
+            metaFile.writeText(metaString)
+
+            val currDirectory = Paths.get("$path/$userID/$id").toFile()
+            val newDirectory = Paths.get("$path/public/$id").toFile()
+
+            FileUtils.moveDirectory(currDirectory, newDirectory)
+
+            logger.info { "Image updated!" }
+        } else {
+            logger.info { "Image does not exist or is already public!" }
         }
     }
 
